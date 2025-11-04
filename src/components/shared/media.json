@@ -1,0 +1,97 @@
+{
+  "collectionName": "components_shared_media",
+  "info": {
+    "displayName": "Media",
+    "icon": "file-video"
+  },
+  "options": {},
+  "attributes": {
+    "image": {
+      "type": "media",
+      "multiple": true,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "need_alignment": {
+      "type": "boolean",
+      "default": false
+    },
+    "imageDesktopAlignment": {
+      "type": "enumeration",
+      "conditions": {
+        "visible": {
+          "==": [
+            {
+              "var": "need_alignment"
+            },
+            true
+          ]
+        }
+      },
+      "default": "center",
+      "enum": [
+        "left",
+        "right",
+        "center"
+      ]
+    },
+    "imageMobileAlignment": {
+      "type": "enumeration",
+      "conditions": {
+        "visible": {
+          "==": [
+            {
+              "var": "need_alignment"
+            },
+            true
+          ]
+        }
+      },
+      "default": "top",
+      "enum": [
+        "top",
+        "bottom"
+      ]
+    },
+    "has_content": {
+      "type": "boolean",
+      "default": false
+    },
+    "content": {
+      "type": "richtext",
+      "conditions": {
+        "visible": {
+          "==": [
+            {
+              "var": "has_content"
+            },
+            true
+          ]
+        }
+      }
+    },
+    "has_cta": {
+      "type": "boolean",
+      "default": false
+    },
+    "cta": {
+      "type": "component",
+      "conditions": {
+        "visible": {
+          "==": [
+            {
+              "var": "has_cta"
+            },
+            true
+          ]
+        }
+      },
+      "component": "shared.button",
+      "repeatable": true
+    }
+  }
+}
