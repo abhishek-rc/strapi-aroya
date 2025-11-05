@@ -2,8 +2,8 @@
  * header controller
  * 
  * Extends the core header controller to include navigation data
- * in the response. Fetches header_navigation data and combines it
- * with header content in a single API call.
+ * in the response. Fetches navigation data and combines it with header
+ * content in a single API call with locale support.
  */
 
 import { factories } from '@strapi/strapi';
@@ -11,21 +11,31 @@ import { factories } from '@strapi/strapi';
 const NAVIGATION_SLUG = 'header-navigation';
 
 /**
- * Fetches navigation data by slug
- * @param {Object} strapi - Strapi instance
- * @param {string} slug - Navigation slug to fetch
- * @returns {Promise<Object|null>} Navigation data or null if not found
+ * Fetches navigation data by slug with locale support
  */
-async function fetchNavigation(strapi, slug = NAVIGATION_SLUG) {
+async function fetchNavigation(strapi, slug = NAVIGATION_SLUG, locale = null) {
     try {
-        // Check if navigation plugin is installed
         const navigationPlugin = strapi.plugin('navigation');
         if (!navigationPlugin) {
             return null;
         }
 
-        // First, fetch all navigations to see what exists
-        let navigation = await strapi.entityService.findMany('plugin::navigation.navigation', {
+        // Try render service first - returns navigation items with correct structure
+        const renderService = navigationPlugin.service('render');
+        if (renderService?.render) {
+            try {
+                const result = await renderService.render(slug);
+                if (result && Array.isArray(result) && result.length > 0) {
+                    return result;
+                }
+            } catch (error) {
+                // Render service failed, fall through to entityService fallback
+            }
+        }
+
+        // Fallback: Use entityService to fetch navigation with proper populate
+        const queryOptions: any = {
+            filters: { slug: { $eq: slug } },
             populate: {
                 items: {
                     populate: {
@@ -35,76 +45,47 @@ async function fetchNavigation(strapi, slug = NAVIGATION_SLUG) {
                     },
                 },
             },
-        });
+        };
 
-	console.log(">>>>>>>>>>>>>>>>", navigation)
-
-        // Find navigation with matching slug
-        if (navigation && navigation.length > 0) {
-            const navData = navigation.find((nav) => nav.slug === slug) || navigation[0];
-	
-	    console.log("###########", navData);
-
-            // Try to render navigation using the plugin's render service
-            try {
-                const renderService = navigationPlugin.service('render');
-		console.log("bbbbbbbbbbbb", navigationPlugin.service)
-		console.log('Available services:', Object.keys(navigationPlugin.service || {}));
-		console.log("aaaaaaaaaaaa", renderService);
-                if (renderService?.render) {
-                    return await renderService.render(slug);
-                }
-            } catch (error) {
-                console.log('Failed to render header_navigation: navigation plugin not installed', error);
-                return null;
-            }
+        if (locale) {
+            queryOptions.locale = locale;
         }
-        return null;
+
+        const navigations = await strapi.entityService.findMany('plugin::navigation.navigation', queryOptions);
+
+        if (!navigations || navigations.length === 0) {
+            return null;
+        }
+
+        const navData = navigations.find((nav) => nav.slug === slug) || navigations[0];
+
+        return navData.items || [];
     } catch (error) {
-        console.log('Failed to fetch header_navigation:', error);
         return null;
     }
 }
-export default factories.createCoreController('api::headers.headers', ({ strapi }) => ({
-    /**
-     * Find all headers with navigation data
-     * @param {Object} ctx - Koa context
-     * @returns {Promise<Object>} Response with header and navigation data
-     */
-    async find(ctx) {
-        const { data, meta } = await super.find(ctx);
-        const headerNavigation = await fetchNavigation(strapi);
 
-	console.log("%%%%%%%%%%%%%%%", headerNavigation);
+export default factories.createCoreController('api::headers.headers', ({ strapi }) => ({
+    async find(ctx) {
+        const locale = ctx.query.locale || null;
+        const { data, meta } = await super.find(ctx);
+        const headerNavigation = await fetchNavigation(strapi, NAVIGATION_SLUG, locale);
 
         return {
             data: Array.isArray(data)
-                ? data.map((item) => ({
-                    ...item,
-                    header_navigation: headerNavigation,
-                }))
-                : {
-                    ...data,
-                    header_navigation: headerNavigation,
-                },
+                ? data.map((item) => ({ ...item, header_navigation: headerNavigation }))
+                : { ...data, header_navigation: headerNavigation },
             meta,
         };
     },
 
-    /**
-     * Find one header with navigation data
-     * @param {Object} ctx - Koa context
-     * @returns {Promise<Object>} Response with header and navigation data
-     */
     async findOne(ctx) {
+        const locale = ctx.query.locale || null;
         const { data, meta } = await super.findOne(ctx);
-        const headerNavigation = await fetchNavigation(strapi);
+        const headerNavigation = await fetchNavigation(strapi, NAVIGATION_SLUG, locale);
 
         return {
-            data: {
-                ...data,
-                header_navigation: headerNavigation,
-            },
+            data: { ...data, header_navigation: headerNavigation },
             meta,
         };
     },
