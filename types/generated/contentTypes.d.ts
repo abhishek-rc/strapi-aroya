@@ -606,6 +606,10 @@ export interface ApiFootersFooters extends Struct.CollectionTypeSchema {
       'api::footers.footers'
     >;
     publishedAt: Schema.Attribute.DateTime;
+    site_setting: Schema.Attribute.Relation<
+      'manyToOne',
+      'api::site-setting.site-setting'
+    >;
     social_link_heading: Schema.Attribute.String &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
@@ -745,6 +749,10 @@ export interface ApiHeadersHeaders extends Struct.CollectionTypeSchema {
         };
       }> &
       Schema.Attribute.DefaultTo<false>;
+    site_setting: Schema.Attribute.Relation<
+      'manyToOne',
+      'api::site-setting.site-setting'
+    >;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -836,6 +844,10 @@ export interface ApiSiteSettingSiteSetting extends Struct.CollectionTypeSchema {
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    footers: Schema.Attribute.Relation<'oneToMany', 'api::footers.footers'> &
+      Schema.Attribute.Private;
+    headers: Schema.Attribute.Relation<'oneToMany', 'api::headers.headers'> &
+      Schema.Attribute.Private;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
@@ -845,7 +857,8 @@ export interface ApiSiteSettingSiteSetting extends Struct.CollectionTypeSchema {
     name: Schema.Attribute.String &
       Schema.Attribute.Required &
       Schema.Attribute.Unique;
-    pages: Schema.Attribute.Relation<'oneToMany', 'api::page.page'>;
+    pages: Schema.Attribute.Relation<'oneToMany', 'api::page.page'> &
+      Schema.Attribute.Private;
     publishedAt: Schema.Attribute.DateTime;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &

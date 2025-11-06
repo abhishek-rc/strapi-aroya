@@ -50,6 +50,12 @@
           "localized": true
         }
       }
+    },
+    "site_setting": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::site-setting.site-setting",
+      "inversedBy": "footers"
     }
   }
 }

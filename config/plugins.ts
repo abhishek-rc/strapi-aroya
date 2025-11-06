@@ -13,18 +13,18 @@ export default ({ env }) => ({
     enabled: true,
   },
 
-  // GraphQL Plugin
-  graphql: {
-    enabled: true,
-    config: {
-      endpoint: '/graphql',
-      shadowCRUD: true,
-      playgroundAlways: false,
-      depthLimit: 7,
-      amountLimit: 100,
-      apolloServer: {
-        tracing: false,
-      },
-    },
-  },
+  // // GraphQL Plugin
+  // graphql: {
+  //   enabled: true,
+  //   config: {
+  //     endpoint: '/graphql',
+  //     shadowCRUD: true,
+  //     playgroundAlways: false,
+  //     depthLimit: 7,
+  //     amountLimit: 100,
+  //     apolloServer: {
+  //       tracing: false,
+  //     },
+  //   },
+  // },
 });

@@ -29,6 +29,21 @@
       "type": "relation",
       "relation": "oneToMany",
       "target": "api::page.page",
+      "private": true,
+      "mappedBy": "site_setting"
+    },
+    "headers": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::headers.headers",
+      "private": true,
+      "mappedBy": "site_setting"
+    },
+    "footers": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::footers.footers",
+      "private": true,
       "mappedBy": "site_setting"
     }
   }
